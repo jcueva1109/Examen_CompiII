@@ -188,19 +188,24 @@ void MethodInvocationExpr::genCode(Code &code){
     
 }
 
-//Revisar
+//Done
 string AssignationStatement::genCode(){
-    return "Assignation statement code generation\n";
+    // return "Assignation statement code generation\n";
 
-    // stringstream ss;
-    // Code exprCode;
-    // this->value->genCode(exprCode);
-    // ss<<exprCode.code<<endl;
-    // // localVariables[id] = globalStackPointer;
-    // globalStackPointer+=4;
-    // ss<< "s.s "<< exprCode.place <<", "<<localVariables[id]<<"($sp)"<<endl;
-    // releaseFloatTemp(exprCode.place);
-    // return ss.str();
+    if(localVariables.find(this->id) == localVariables.end()){
+
+        localVariables[this->id] = new variableData(globalStackPointer);
+        globalStackPointer+=4;
+
+    }
+
+    stringstream ss;
+    Code value;
+    this->value->genCode(value);
+    ss<<value.code<<endl;
+    ss<< "s.s "<< value.place <<", "<<localVariables[this->id]->offset<<"($sp)"<<endl;
+    releaseFloatTemp(value.place);
+    return ss.str();
 
 }
 
@@ -285,16 +290,12 @@ string PrintStatement::genCode(){
     // return "Print statement code generation\n";
 
     Code exprCode;
-    // this->expressions->genCode(exprCode);
-    releaseFloatTemp(exprCode.place);
-    stringstream code;
-
-    code<<exprCode.code<<endl;  
-    code<<"mov.s $f12, "<<exprCode.place<<endl
+    stringstream ss;
+    ss<<"mov.s $f12, "<<exprCode.place<<endl
     <<"li $v0, 2"<<endl
     <<"syscall"<<endl;
 
-    return code.str();
+    return ss.str();
 
 }
 
